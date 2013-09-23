@@ -1,14 +1,16 @@
 # ReGrowl Server
 
-Server for *regrowling* GNTP messages using various bridge classes
+Forked by snicker in Sept 2013 to act as a headless GNTP server to bouncing messages to other clients. Will eventually support:
 
-Initial support for:
+* Forwarding to multiple machines
+* Forwarding based in incoming messages host address, application name, message type, etc
+* Web GUI for modifying forwarding configuration data
 
-* local - Regrowl to legacy versions of growl using [legacy python bindings](http://pypi.python.org/pypi/growl-py/0.0.7)
-* udp - Regrowl using legacy udp protocol
-* echo - Echo incoming growl messages to the terminal (used for debugging)
+Currently supports:
 
-Read documentation for each bridge in the bridge classes themselves
+* Forwarding all messages to a single machine
+
+Completely based on the work done by KFDM, one of the only GNTP solutions I've seen that works on FreeBSD.
 
 ## Installing
 
