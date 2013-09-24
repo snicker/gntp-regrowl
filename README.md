@@ -41,7 +41,7 @@ This file is also used to configure the destinations for forwarding messages.
 port = 12345
 password = mypassword
 
-[regrowl.bridge.forward]
+[regrowl.bridge.forward.destinations]
 machine1 = 192.168.1.65,23053,mypassword
 examplename = <hostname>,<port>,<password>
 
