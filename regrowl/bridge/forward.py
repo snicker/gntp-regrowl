@@ -16,6 +16,7 @@ import logging
 import gntp.notifier
 import gntp.core
 import ConfigParser
+import pushnotify
 
 from regrowl.regrowler import ReGrowler
 from regrowl.cli import CONFIG_PATH
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['GrowlForwarder']
 
+prowl_provider_key = "189853fa49a4fe6cba6e9c671617b566152cd10c"
 
 class GrowlForwarder(ReGrowler):
     key = __name__
@@ -40,6 +42,9 @@ class GrowlForwarder(ReGrowler):
                 notifier._send(packet.info['messagetype'],packet)
             elif destination[0] == "prowl":
                 logger.info("Forwarding to " + destination[0] + " destination, API Key: " + destination[1]) 
+                client = pushnotify.get_client('prowl', developerkey=prowl_provider_key, application=packet.headers.get('Application-Name'))
+                client.add_key(destination[1])
+                client.notify(description = packet.headers.get('Notification-Text'), event = packet.headers.get('Notification-Title'))
             else:
                 logger.error("Invalid forwarding destination type: " + destination[0])
 

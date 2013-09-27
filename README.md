@@ -4,11 +4,11 @@ Forked by snicker in Sept 2013 to act as a headless GNTP server to bouncing mess
 
 * Forwarding based in incoming messages host address, application name, message type, etc
 * Web GUI for modifying forwarding configuration data
-* Forwarding all messages to Prowl clients with API keys, see example below
 
 Currently supports:
 
 * Forwarding all messages to machines as defined in the configuration file
+* Forwarding all messages to Prowl clients with API keys, see example below
 
 Completely based on the work done by KFDM, one of the only GNTP solutions I've seen that works on FreeBSD.
 
