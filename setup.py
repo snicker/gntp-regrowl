@@ -25,6 +25,7 @@ setup(
     install_requires=[
         'gntp',
         'growl-py',
+        'pushnotify',
         ],
     entry_points={
         'console_scripts': [

@@ -32,11 +32,16 @@ class GrowlForwarder(ReGrowler):
     def forwardpacket(self, packet):
         destinations = self.load_destinations()
         for destination in destinations:
-            logger.info("Forwarding packet to " + destination[0] + ":" + destination[1] + "...")
-            notifier = gntp.notifier.GrowlNotifier(hostname = destination[0], port = int(destination[1]), password = destination[2])
-            if destination[2]:
-                packet.set_password(destination[2],'MD5')
-            notifier._send(packet.info['messagetype'],packet)
+            if destination[0] == "network":
+                logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2]) 
+                notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
+                if destination[3]:
+                    packet.set_password(destination[3],'MD5')
+                notifier._send(packet.info['messagetype'],packet)
+            elif destination[0] == "prowl":
+                logger.info("Forwarding to " + destination[0] + " destination, API Key: " + destination[1]) 
+            else:
+                logger.error("Invalid forwarding destination type: " + destination[0])
 
     def load_destinations(self):
         parser = ConfigParser.ConfigParser()

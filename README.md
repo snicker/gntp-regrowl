@@ -4,6 +4,7 @@ Forked by snicker in Sept 2013 to act as a headless GNTP server to bouncing mess
 
 * Forwarding based in incoming messages host address, application name, message type, etc
 * Web GUI for modifying forwarding configuration data
+* Forwarding all messages to Prowl clients with API keys, see example below
 
 Currently supports:
 
@@ -42,8 +43,9 @@ port = 12345
 password = mypassword
 
 [regrowl.bridge.forward.destinations]
-machine1 = 192.168.1.65,23053,mypassword
-examplename = <hostname>,<port>,<password>
+machine1 = network,192.168.1.65,23053,mypassword
+iphone1 = prowl,<prowlAPIkey>
+examplename = network,<hostname>,<port>,<password>
 
 [regrowl.bridge.local]
 enabled = false
