@@ -6,6 +6,7 @@
 import SocketServer
 import logging
 import platform
+import time
 
 from gntp.core import parse_gntp, GNTPOK
 from gntp.errors import BaseError as GNTPError
@@ -37,13 +38,13 @@ def add_origin_info(packet):
 
 class GNTPHandler(SocketServer.StreamRequestHandler):
     def read(self):
-        bufferLength = 2048
+        bufferLength = 2048 
         buffer = ''
         while(1):
             data = self.request.recv(bufferLength)
-            logger.debug('Reading %s Bytes', len(data))
+            logger.info('Reading %s Bytes', len(data))
             buffer = buffer + data
-            if len(data) < bufferLength and buffer.endswith('\r\n\r\n'):
+            if len(data) < bufferLength and ( len(data) == 0 or buffer.endswith('\r\n\r\n') ):
                 break
         logger.trace('Incoming Request\n%s\n%s\n%s', SPACER, buffer, SPACER)
         return buffer
