@@ -17,6 +17,7 @@ import gntp.notifier
 import gntp.core
 import ConfigParser
 import pushnotify
+from threading import Thread
 
 from regrowl.regrowler import ReGrowler
 from regrowl.cli import CONFIG_PATH
@@ -34,19 +35,33 @@ class GrowlForwarder(ReGrowler):
     def forwardpacket(self, packet):
         destinations = self.load_destinations()
         for destination in destinations:
+            thread = Thread(target = self.forwardpackettodestination, args = (packet, destination,))
+            thread.start()
+
+    def forwardpackettodestination(self, packet, destination):
             if destination[0] == "network":
-                logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2]) 
+                logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2])
                 notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
                 if destination[3]:
                     packet.set_password(destination[3],'MD5')
-                notifier._send(packet.info['messagetype'],packet)
+                try:
+                    notifier._send(packet.info['messagetype'],packet)
+                except Exception, e:
+                    logger.info("Network error while Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2] + ":")
+                    logger.info(e)
             elif destination[0] == "prowl":
-                logger.info("Forwarding to " + destination[0] + " destination, API Key: " + destination[1]) 
+                logger.info("Forwarding to " + destination[0] + " destination, API Key: " + destination[1])
                 client = pushnotify.get_client('prowl', developerkey=prowl_provider_key, application=packet.headers.get('Application-Name'))
                 client.add_key(destination[1])
-                client.notify(description = packet.headers.get('Notification-Text'), event = packet.headers.get('Notification-Title'))
+                try:
+                    client.notify(description = packet.headers.get('Notification-Text'), event = packet.headers.get('Notification-Title'))
+                except Exception, e:
+                    logger.info("Prowl error while forwarding to " + destination[0] + " destination, API Key: " + destination[1] + ":")
+                    logger.info(e)
             else:
                 logger.error("Invalid forwarding destination type: " + destination[0])
+
+
 
     def load_destinations(self):
         parser = ConfigParser.ConfigParser()
