@@ -59,3 +59,7 @@ Config file sections are defined by the package name.
 ## See Also
 
 * [Python GNTP Library](https://github.com/kfdm/gntp) Used to decode incoming growl messages
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/snicker/gntp-regrowl/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
