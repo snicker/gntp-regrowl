@@ -92,6 +92,8 @@ def main():
 
     (options, args) = parser.parse_args()
     options.verbose = logging.WARNING - options.verbose * 10
+    if options.debug:
+        options.verbose = logging.DEBUG
 
     try:
         import setproctitle

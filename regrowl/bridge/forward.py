@@ -42,6 +42,7 @@ class GrowlForwarder(ReGrowler):
             if destination[0] == "network":
                 logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2])
                 notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
+                packet.info['encryptionAlgorithmID'] = "NONE"
                 if destination[3]:
                     packet.set_password(destination[3],'MD5')
                 try:
