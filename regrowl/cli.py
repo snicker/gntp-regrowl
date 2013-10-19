@@ -12,15 +12,23 @@ CONFIG_PATH = [
     ]
 
 DEFAULTS = {
-    'host': '0.0.0.0',
-    'port': 12345,
-    'password': None,
+    'regrowl.server':
+    {
+        'host': '0.0.0.0',
+        'port': 12345,
+        'password': None,
+    }
 }
-
 
 class DefaultConfig(RawConfigParser):
     def __init__(self, *args, **kwargs):
         RawConfigParser.__init__(self, *args, **kwargs)
+        
+        for section in DEFAULTS:
+            self.add_section(section)
+            for (option, value) in DEFAULTS[section].items():
+                self.set(section, option, value)
+        
         if not self.has_section('regrowl.server'):
             self.add_section('regrowl.server')
 
@@ -40,7 +48,7 @@ class DefaultConfig(RawConfigParser):
 class ParserWithConfig(ArgumentParser):
     def __init__(self, config):
         ArgumentParser.__init__(self)
-        self.config = DefaultConfig(DEFAULTS)
+        self.config = DefaultConfig()
         self.config.read(CONFIG_PATH)
 
     def add_default_option(self, *args, **kwargs):
@@ -50,26 +58,42 @@ class ParserWithConfig(ArgumentParser):
             None: self.config.get,
         }.get(kwargs.get('type'))
 
-        kwargs['default'] = fun('regrowl.server', kwargs.get('dest'))
+        if 'section' in kwargs:
+            kwargs['default'] = fun(kwargs.get('section'), kwargs.get('dest'))
+            del kwargs['section']
 
         self.add_argument(*args, **kwargs)
 
 
 def main():
     parser = ParserWithConfig(CONFIG_PATH)
+
+    parser.add_argument(
+        "-c", "--config",
+        help="path to a regrowl configuration file",
+        dest="config_path"
+        )
+    
+    (options, args) = parser.parse_known_args()
+    if options.config_path is not None:
+        parser.config.read(options.config_path)
+
     parser.add_default_option(
         "-a", "--address",
         help="address to listen on",
-        dest="host"
+        dest="host",
+        section="regrowl.server"
         )
     parser.add_default_option("-p", "--port",
         help="port to listen on",
         dest="port",
-        type=int
+        type=int,
+        section="regrowl.server"
         )
     parser.add_default_option("-P", "--password",
         help="Network password",
-        dest='password'
+        dest='password',
+        section="regrowl.server"
         )
 
     # Debug Options

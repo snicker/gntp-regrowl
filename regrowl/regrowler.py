@@ -5,7 +5,8 @@ logger = logging.getLogger(__name__)
 
 
 class ReGrowler(object):
-    def __init__(self, packet, srcaddr, srcport):
+    def __init__(self, config, packet, srcaddr, srcport):
+        self.config = config
         self.srcpacket = packet
         self.srcaddr = srcaddr
         self.srcport = srcport
@@ -38,6 +39,9 @@ class ReGrowler(object):
             'NOTIFY': self.notify,
             'SUBSCRIBE': self.subscribe,
         }.get(packet.info['messagetype'])(packet)
+
+    def set_conf(self, conf):
+        self.conf = conf
 
     def get_resource(self, packet, resource):
         try:

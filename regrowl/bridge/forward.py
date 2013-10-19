@@ -64,9 +64,7 @@ class GrowlForwarder(ReGrowler):
 
 
     def load_destinations(self):
-        parser = ConfigParser.ConfigParser()
-        parser.read(CONFIG_PATH) #[TODO] this is not portable
-        conf_destinations = parser.items("regrowl.bridge.forward.destinations")
+        conf_destinations = self.config.items("regrowl.bridge.forward.destinations")
         destinations = []
         for destination, options in conf_destinations:
             destinations.append(options.split(','))
