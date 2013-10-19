@@ -28,9 +28,6 @@ class DefaultConfig(RawConfigParser):
             self.add_section(section)
             for (option, value) in DEFAULTS[section].items():
                 self.set(section, option, value)
-        
-        if not self.has_section('regrowl.server'):
-            self.add_section('regrowl.server')
 
         self.get = self._wrap_default(self.get)
         self.getint = self._wrap_default(self.getint)
