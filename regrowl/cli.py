@@ -1,4 +1,4 @@
-from optparse import OptionParser
+from argparse import ArgumentParser
 from ConfigParser import RawConfigParser
 import logging
 import os
@@ -37,22 +37,22 @@ class DefaultConfig(RawConfigParser):
         return _wrapper
 
 
-class ParserWithConfig(OptionParser):
+class ParserWithConfig(ArgumentParser):
     def __init__(self, config):
-        OptionParser.__init__(self)
+        ArgumentParser.__init__(self)
         self.config = DefaultConfig(DEFAULTS)
         self.config.read(CONFIG_PATH)
 
     def add_default_option(self, *args, **kwargs):
         # Map the correct config.get* to the type of option being added
         fun = {
-            'int': self.config.getint,
+            int: self.config.getint,
             None: self.config.get,
         }.get(kwargs.get('type'))
 
         kwargs['default'] = fun('regrowl.server', kwargs.get('dest'))
 
-        self.add_option(*args, **kwargs)
+        self.add_argument(*args, **kwargs)
 
 
 def main():
@@ -65,7 +65,7 @@ def main():
     parser.add_default_option("-p", "--port",
         help="port to listen on",
         dest="port",
-        type="int"
+        type=int
         )
     parser.add_default_option("-P", "--password",
         help="Network password",
@@ -73,24 +73,24 @@ def main():
         )
 
     # Debug Options
-    parser.add_option('-v', '--verbose',
+    parser.add_argument('-v', '--verbose',
         dest='verbose',
         default=0,
         action='count',
         )
-    parser.add_option("-d", "--debug",
+    parser.add_argument("-d", "--debug",
         help="Print raw growl packets",
         dest='debug',
         action="store_true",
         default=False
         )
-    parser.add_option("-q", "--quiet",
+    parser.add_argument("-q", "--quiet",
         help="Quiet mode",
         dest='debug',
         action="store_false"
         )
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_known_args()
     options.verbose = logging.WARNING - options.verbose * 10
 
     try:
