@@ -1,4 +1,4 @@
-from optparse import OptionParser
+from argparse import ArgumentParser
 from ConfigParser import RawConfigParser
 import logging
 import os
@@ -12,17 +12,22 @@ CONFIG_PATH = [
     ]
 
 DEFAULTS = {
-    'host': '0.0.0.0',
-    'port': 12345,
-    'password': None,
+    'regrowl.server':
+    {
+        'host': '0.0.0.0',
+        'port': 12345,
+        'password': None,
+    }
 }
-
 
 class DefaultConfig(RawConfigParser):
     def __init__(self, *args, **kwargs):
         RawConfigParser.__init__(self, *args, **kwargs)
-        if not self.has_section('regrowl.server'):
-            self.add_section('regrowl.server')
+        
+        for section in DEFAULTS:
+            self.add_section(section)
+            for (option, value) in DEFAULTS[section].items():
+                self.set(section, option, value)
 
         self.get = self._wrap_default(self.get)
         self.getint = self._wrap_default(self.getint)
@@ -37,60 +42,76 @@ class DefaultConfig(RawConfigParser):
         return _wrapper
 
 
-class ParserWithConfig(OptionParser):
+class ParserWithConfig(ArgumentParser):
     def __init__(self, config):
-        OptionParser.__init__(self)
-        self.config = DefaultConfig(DEFAULTS)
+        ArgumentParser.__init__(self)
+        self.config = DefaultConfig()
         self.config.read(CONFIG_PATH)
 
     def add_default_option(self, *args, **kwargs):
         # Map the correct config.get* to the type of option being added
         fun = {
-            'int': self.config.getint,
+            int: self.config.getint,
             None: self.config.get,
         }.get(kwargs.get('type'))
 
-        kwargs['default'] = fun('regrowl.server', kwargs.get('dest'))
+        if 'section' in kwargs:
+            kwargs['default'] = fun(kwargs.get('section'), kwargs.get('dest'))
+            del kwargs['section']
 
-        self.add_option(*args, **kwargs)
+        self.add_argument(*args, **kwargs)
 
 
 def main():
     parser = ParserWithConfig(CONFIG_PATH)
+
+    parser.add_argument(
+        "-c", "--config",
+        help="path to a regrowl configuration file",
+        dest="config_path"
+        )
+    
+    (options, args) = parser.parse_known_args()
+    if options.config_path is not None:
+        parser.config.read(options.config_path)
+
     parser.add_default_option(
         "-a", "--address",
         help="address to listen on",
-        dest="host"
+        dest="host",
+        section="regrowl.server"
         )
     parser.add_default_option("-p", "--port",
         help="port to listen on",
         dest="port",
-        type="int"
+        type=int,
+        section="regrowl.server"
         )
     parser.add_default_option("-P", "--password",
         help="Network password",
-        dest='password'
+        dest='password',
+        section="regrowl.server"
         )
 
     # Debug Options
-    parser.add_option('-v', '--verbose',
+    parser.add_argument('-v', '--verbose',
         dest='verbose',
         default=0,
         action='count',
         )
-    parser.add_option("-d", "--debug",
+    parser.add_argument("-d", "--debug",
         help="Print raw growl packets",
         dest='debug',
         action="store_true",
         default=False
         )
-    parser.add_option("-q", "--quiet",
+    parser.add_argument("-q", "--quiet",
         help="Quiet mode",
         dest='debug',
         action="store_false"
         )
 
-    (options, args) = parser.parse_args()
+    (options, args) = parser.parse_known_args()
     options.verbose = logging.WARNING - options.verbose * 10
 
     try:
