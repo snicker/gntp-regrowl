@@ -91,7 +91,7 @@ class GNTPServer(SocketServer.TCPServer):
         try:
             SocketServer.TCPServer.__init__(self, (options.host, options.port), GNTPHandler)
         except:
-            logger.critical('There is already a server running on port %d', options.port)
+            logger.critical('There was an error starting a server on host %s and port %d (already running?)', options.host, options.port)
             exit(1)
 
         logger.info('Loading Server')
