@@ -43,10 +43,15 @@ class DefaultConfig(RawConfigParser):
 
 
 class ParserWithConfig(ArgumentParser):
-    def __init__(self, config):
-        ArgumentParser.__init__(self)
+    def __init__(self, *args, **kwargs):
+        if 'config' in kwargs:
+            config = kwargs['config']
+            del kwargs['config']
+        else:
+            config = []
+        ArgumentParser.__init__(self, *args, **kwargs)
         self.config = DefaultConfig()
-        self.config.read(CONFIG_PATH)
+        self.config.read(config)
 
     def add_default_option(self, *args, **kwargs):
         # Map the correct config.get* to the type of option being added
@@ -63,17 +68,21 @@ class ParserWithConfig(ArgumentParser):
 
 
 def main():
-    parser = ParserWithConfig(CONFIG_PATH)
-
-    parser.add_argument(
+    conf_parser = ParserWithConfig(config=CONFIG_PATH, add_help=False)
+    conf_parser.add_argument(
         "-c", "--config",
         help="path to a regrowl configuration file",
         dest="config_path"
         )
     
-    (options, args) = parser.parse_known_args()
+    (options, remaining_args) = conf_parser.parse_known_args()
     if options.config_path is not None:
-        parser.config.read(options.config_path)
+        conf_parser.config.read(options.config_path)
+
+    parser = ParserWithConfig(
+        config=options.config_path, 
+        parents=[conf_parser]
+        )
 
     parser.add_default_option(
         "-a", "--address",
@@ -111,7 +120,7 @@ def main():
         action="store_false"
         )
 
-    (options, args) = parser.parse_known_args()
+    (options, args) = parser.parse_known_args(remaining_args)
     options.verbose = logging.WARNING - options.verbose * 10
 
     try:
