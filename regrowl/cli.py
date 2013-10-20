@@ -70,9 +70,9 @@ class ParserWithConfig(ArgumentParser):
 def main():
     conf_parser = ParserWithConfig(config=CONFIG_PATH, add_help=False)
     conf_parser.add_argument(
-        "-c", "--config",
-        help="path to a regrowl configuration file",
-        dest="config_path"
+        '-c', '--config',
+        help='path to a regrowl configuration file',
+        dest='config_path'
         )
     
     (options, remaining_args) = conf_parser.parse_known_args()
@@ -85,39 +85,44 @@ def main():
         )
 
     parser.add_default_option(
-        "-a", "--address",
-        help="address to listen on",
-        dest="host",
-        section="regrowl.server"
+        '-a', '--address',
+        help='address to listen on',
+        dest='host',
+        section='regrowl.server'
         )
-    parser.add_default_option("-p", "--port",
-        help="port to listen on",
-        dest="port",
+    parser.add_default_option(
+        '-p', '--port',
+        help='port to listen on',
+        dest='port',
         type=int,
-        section="regrowl.server"
+        section='regrowl.server'
         )
-    parser.add_default_option("-P", "--password",
-        help="Network password",
+    parser.add_default_option(
+        '-P', '--password',
+        help='Network password',
         dest='password',
-        section="regrowl.server"
+        section='regrowl.server'
         )
 
     # Debug Options
-    parser.add_argument('-v', '--verbose',
+    parser.add_argument(
+        '-v', '--verbose',
         dest='verbose',
         default=0,
         action='count',
         )
-    parser.add_argument("-d", "--debug",
-        help="Print raw growl packets",
+    parser.add_argument(
+        '-d', '--debug',
+        help='Print raw growl packets',
         dest='debug',
-        action="store_true",
+        action='store_true',
         default=False
         )
-    parser.add_argument("-q", "--quiet",
-        help="Quiet mode",
+    parser.add_argument(
+        '-q', '--quiet',
+        help='Quiet mode',
         dest='debug',
-        action="store_false"
+        action='store_false'
         )
 
     (options, args) = parser.parse_known_args(remaining_args)
@@ -135,5 +140,5 @@ def main():
     server = GNTPServer(options, parser.config)
     server.run()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
