@@ -17,6 +17,8 @@ import gntp.notifier
 import gntp.core
 import ConfigParser
 import pushnotify
+import socket
+import time
 from threading import Thread
 
 from regrowl.regrowler import ReGrowler
@@ -43,6 +45,16 @@ class GrowlForwarder(ReGrowler):
                 logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2])
                 notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
                 packet.info['encryptionAlgorithmID'] = "NONE"
+                packet.add_header(
+                    "Received", 
+                    "From %(source)s by %(receiver)s [with Growl] [id %(identifier)s]; %(date)s" % 
+                    {
+                        'source':packet.headers.get('Origin-Machine-Name'),
+                        'receiver':socket.gethostname(),
+                        'identifier':'id',
+                        'date':time.strftime("%Y-%m-%d %H:%M:%SZ",time.gmtime())
+                    }
+                    )
                 if destination[3]:
                     packet.set_password(destination[3],'MD5')
                 try:
