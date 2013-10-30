@@ -43,25 +43,28 @@ class GrowlForwarder(ReGrowler):
     def forwardpackettodestination(self, packet, destination):
             if destination[0] == "network":
                 logger.info("Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2])
-                notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
-                packet.info['encryptionAlgorithmID'] = "NONE"
-                packet.add_header(
-                    "Received", 
-                    "From %(source)s by %(receiver)s [with Growl] [id %(identifier)s]; %(date)s" % 
-                    {
-                        'source':packet.headers.get('Origin-Machine-Name'),
-                        'receiver':socket.gethostname(),
-                        'identifier':'id',
-                        'date':time.strftime("%Y-%m-%d %H:%M:%SZ",time.gmtime())
-                    }
-                    )
-                if destination[3]:
-                    packet.set_password(destination[3],'MD5')
-                try:
-                    notifier._send(packet.info['messagetype'],packet)
-                except Exception, e:
-                    logger.info("Network error while Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2] + ":")
-                    logger.info(e)
+                if self.srcaddr == destination[1]:
+                    logger.info("Source and Destination are the same, not forwarding") #[TODO] check src and dest port as well as hostnames
+                else:
+                    notifier = gntp.notifier.GrowlNotifier(hostname = destination[1], port = int(destination[2]), password = destination[3])
+                    packet.info['encryptionAlgorithmID'] = "NONE"
+                    packet.add_header(
+                        "Received", 
+                        "From %(source)s by %(receiver)s [with Growl] [id %(identifier)s]; %(date)s" % 
+                        {
+                            'source':packet.headers.get('Origin-Machine-Name'),
+                            'receiver':socket.gethostname(),
+                            'identifier':'id',
+                            'date':time.strftime("%Y-%m-%d %H:%M:%SZ",time.gmtime())
+                        }
+                        )
+                    if destination[3]:
+                        packet.set_password(destination[3],'MD5')
+                    try:
+                        notifier._send(packet.info['messagetype'],packet)
+                    except Exception, e:
+                        logger.info("Network error while Forwarding to " + destination[0] + " destination " + destination[1] + ":" + destination[2] + ":")
+                        logger.info(e)
             elif destination[0] == "prowl":
                 logger.info("Forwarding to " + destination[0] + " destination, API Key: " + destination[1])
                 client = pushnotify.get_client('prowl', developerkey=prowl_provider_key, application=packet.headers.get('Application-Name'))

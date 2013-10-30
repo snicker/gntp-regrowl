@@ -55,7 +55,8 @@ class GNTPHandler(SocketServer.StreamRequestHandler):
 
     def handle(self):
         self.hostaddr, self.port = self.request.getsockname()
-        logger.info('Handling request from %s:%s', self.hostaddr, self.port)
+        self.srcaddr, self.srcport = self.client_address
+        logger.info('Handling request from %s:%s', self.srcaddr, self.srcport)
 
         self.data = self.read()
 
@@ -83,7 +84,7 @@ class GNTPHandler(SocketServer.StreamRequestHandler):
             self.server.notifiers = load_bridges(self.server.config)
 
         for bridge in self.server.notifiers:
-            bridge(self.server.config, message, self.hostaddr, self.port)
+            bridge(self.server.config, message, self.srcaddr, self.srcport)
 
 
 class GNTPServer(SocketServer.TCPServer):
