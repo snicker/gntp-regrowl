@@ -78,6 +78,8 @@ def main():
     (options, remaining_args) = conf_parser.parse_known_args()
     if options.config_path is not None:
         conf_parser.config.read(options.config_path)
+    else:
+        options.config_path = CONFIG_PATH
 
     parser = ParserWithConfig(
         config=options.config_path, 
