@@ -62,6 +62,8 @@ class GNTPHandler(SocketServer.StreamRequestHandler):
 
         try:
             message = parse_gntp(self.data, self.server.options.password)
+            self.server.message_count += 1
+            message.message_id = self.server.message_count
 
             response = GNTPOK(action=message.info['messagetype'])
             add_origin_info(response)
@@ -99,6 +101,7 @@ class GNTPServer(SocketServer.TCPServer):
         self.config = config
         self.options = options
         self.notifiers = load_bridges(self.config)
+        self.message_count = 0
 
     def run(self):
         logger.info('Starting Server')

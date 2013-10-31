@@ -18,7 +18,7 @@ class ReGrowler(object):
 
         # Registration and notification packets have Application-Name
         self.applicationName = packet.headers.get('Application-Name')
-        logger.info('Application Name: %s', self.applicationName)
+        logger.info('Message [' + str(packet.message_id) + '] Application Name: %s', self.applicationName)
 
         # Pull out the notification type(s)
         if packet.info['messagetype'] == 'NOTIFY':
@@ -29,7 +29,7 @@ class ReGrowler(object):
                 self.notifications.append(name['Notification-Name'])
         else:
             self.notifications = []
-        logger.info('Notification Name: %s', self.notifications)
+        logger.info('Message [' + str(packet.message_id) + '] Notification Name: %s', self.notifications)
 
         logger.debug('%s', packet.headers)
 
